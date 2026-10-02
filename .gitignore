@@ -1,0 +1,15 @@
+node_modules/
+.expo/
+dist/
+coverage/
+*.log
+.env
+.env.*
+!.env.example
+!.env.server.example
+.neon
+.DS_Store
+neon-skill-current.md
+artifacts/
+# Per-project agent settings stay local; setup is documented in README.
+.codex/
