@@ -48,8 +48,23 @@ export function expiryLabel(value: string | null): string {
   if (days === 1) return 'Expires tomorrow';
   return `Expires in ${days} days`;
 }
-export function consume(item: Item): Item {
-  return { ...item, quantity: Math.max(0, Math.round((item.quantity - 1) * 1000) / 1000) };
+export function consume(item: Item, amount = 1): Item {
+  if (!Number.isFinite(amount) || amount <= 0) throw new Error('Enter a positive amount.');
+  return { ...item, quantity: Math.max(0, Math.round((item.quantity - amount) * 1000) / 1000) };
+}
+export function subtractAmount(item: Item, amount: number, unit: string): Item {
+  const factors: Record<string, number> = { g: 1, kg: 1000, ml: 1, l: 1000 };
+  const group = (u: string) =>
+    ['g', 'kg'].includes(u) ? 'mass' : ['ml', 'l'].includes(u) ? 'volume' : u;
+  if (group(unit) !== group(item.unit)) throw new Error('Choose a compatible unit.');
+  const converted = (amount * (factors[unit] ?? 1)) / (factors[item.unit] ?? 1);
+  if (!Number.isFinite(converted) || converted <= 0 || converted > item.quantity)
+    throw new Error('Enter an amount within your available stock.');
+  return consume(item, converted);
+}
+export function dateInput(value: string): string {
+  const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value.trim());
+  return match ? `${match[3]}-${match[2]}-${match[1]}` : value.trim();
 }
 export function addShopping(state: PantryState, name: string): PantryState {
   const clean = name.trim();
@@ -70,47 +85,47 @@ export function sampleState(): PantryState {
     items: [
       {
         id: id(),
-        name: 'Baby spinach',
+        name: 'Coriander',
         category: 'Produce',
         location: 'Fridge',
         quantity: 1,
-        unit: 'bag',
+        unit: 'bunch',
         lowAt: 0,
         expires: date(1),
       },
       {
         id: id(),
-        name: 'Greek yogurt',
+        name: 'Curd',
         category: 'Dairy & eggs',
         location: 'Fridge',
         quantity: 2,
-        unit: 'cups',
+        unit: 'packs',
         lowAt: 1,
         expires: date(3),
       },
       {
         id: id(),
-        name: 'Cherry tomatoes',
+        name: 'Tomatoes',
         category: 'Produce',
         location: 'Fridge',
         quantity: 1,
-        unit: 'box',
+        unit: 'kg',
         lowAt: 0,
         expires: date(5),
       },
       {
         id: id(),
-        name: 'Oat milk',
+        name: 'Milk',
         category: 'Dairy & eggs',
         location: 'Fridge',
         quantity: 1,
-        unit: 'carton',
+        unit: 'l',
         lowAt: 1,
         expires: date(7),
       },
       {
         id: id(),
-        name: 'Brown rice',
+        name: 'Rice',
         category: 'Grains',
         location: 'Pantry',
         quantity: 2,
@@ -120,18 +135,18 @@ export function sampleState(): PantryState {
       },
       {
         id: id(),
-        name: 'Free-range eggs',
-        category: 'Dairy & eggs',
-        location: 'Fridge',
-        quantity: 6,
-        unit: 'eggs',
+        name: 'Atta',
+        category: 'Grains',
+        location: 'Pantry',
+        quantity: 2,
+        unit: 'kg',
         lowAt: 3,
-        expires: date(12),
+        expires: null,
       },
     ],
     shopping: [
-      { id: id(), name: 'Avocados', checked: false },
-      { id: id(), name: 'Sourdough bread', checked: false },
+      { id: id(), name: 'Toor dal', checked: false },
+      { id: id(), name: 'Cooking oil', checked: false },
     ],
   };
 }

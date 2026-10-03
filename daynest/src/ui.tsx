@@ -3,16 +3,16 @@ import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 export type Icon = React.ComponentProps<typeof Ionicons>['name'];
 export const C = {
-  bg: '#F7F8F2',
-  paper: '#FFFFFF',
-  ink: '#223E31',
-  muted: '#788279',
-  green: '#38634A',
-  pale: '#EAF0E5',
-  line: '#E5E9DF',
-  orange: '#A85B31',
-  apricot: '#FBEDDE',
-  red: '#A44239',
+  bg: '#121212',
+  paper: '#181818',
+  ink: '#FFFFFF',
+  muted: '#B3B3B3',
+  green: '#1ED760',
+  pale: '#233329',
+  line: '#333333',
+  orange: '#FFA42B',
+  apricot: '#382A18',
+  red: '#F3727F',
 };
 export function Glyph({
   name,
@@ -50,8 +50,8 @@ export function Button({
         { opacity: disabled ? 0.45 : pressed ? 0.75 : 1 },
       ]}
     >
-      {icon && <Glyph name={icon} size={18} color={secondary ? C.green : 'white'} />}
-      <Text style={[s.buttonText, secondary && { color: C.green }]}>{label}</Text>
+      {icon && <Glyph name={icon} size={18} color={secondary ? C.ink : '#121212'} />}
+      <Text style={[s.buttonText, secondary && { color: C.ink }]}>{label}</Text>
     </Pressable>
   );
 }
@@ -88,71 +88,13 @@ export function Field({
     </View>
   );
 }
-export function JarArt() {
-  return (
-    <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={s.art}>
-      <View style={s.artCircle} />
-      <View style={s.shelf} />
-      <View
-        style={[
-          s.jar,
-          {
-            left: 18,
-            bottom: 24,
-            height: 91,
-            width: 65,
-            backgroundColor: '#E6D1AA',
-            transform: [{ rotate: '-7deg' }],
-          },
-        ]}
-      >
-        <View style={s.lid} />
-        <Text style={s.jarSymbol}>🌾</Text>
-        <View style={s.jarLabel}>
-          <Text style={s.jarLabelText}>GRAINS</Text>
-        </View>
-      </View>
-      <View
-        style={[
-          s.jar,
-          { left: 90, bottom: 23, height: 124, width: 76, backgroundColor: '#C6D3AC' },
-        ]}
-      >
-        <View style={[s.lid, { backgroundColor: '#42684B' }]} />
-        <Text style={[s.jarSymbol, { fontSize: 34 }]}>🌿</Text>
-        <View style={s.jarLabel}>
-          <Text style={s.jarLabelText}>FRESH</Text>
-        </View>
-      </View>
-      <View
-        style={[
-          s.jar,
-          {
-            left: 172,
-            bottom: 22,
-            height: 72,
-            width: 58,
-            backgroundColor: '#DDA981',
-            transform: [{ rotate: '8deg' }],
-          },
-        ]}
-      >
-        <View style={s.lid} />
-        <Text style={[s.jarSymbol, { fontSize: 22 }]}>🫘</Text>
-      </View>
-      <Text style={{ position: 'absolute', top: 12, right: 5, fontSize: 22, color: '#76936B' }}>
-        ✦
-      </Text>
-    </View>
-  );
-}
 export const s = StyleSheet.create({
   app: { flex: 1, backgroundColor: C.bg },
   layout: { flex: 1, flexDirection: 'row' },
   center: { justifyContent: 'center', alignItems: 'center', padding: 30, gap: 16 },
   sidebar: {
     width: 235,
-    backgroundColor: '#FDFEF9',
+    backgroundColor: '#181818',
     borderRightWidth: 1,
     borderColor: C.line,
     padding: 24,
@@ -167,7 +109,7 @@ export const s = StyleSheet.create({
     justifyContent: 'center',
   },
   brandText: { fontSize: 31, fontWeight: '700', letterSpacing: -1, color: C.ink },
-  sidebarCaption: { fontSize: 8, letterSpacing: 1.8, color: C.muted, marginTop: 14 },
+  sidebarCaption: { fontSize: 12, letterSpacing: 1, color: C.muted, marginTop: 14 },
   navItem: {
     flexDirection: 'row',
     gap: 12,
@@ -181,13 +123,13 @@ export const s = StyleSheet.create({
   badge: {
     marginLeft: 'auto',
     color: C.green,
-    backgroundColor: '#DFE9D8',
+    backgroundColor: '#233329',
     borderRadius: 6,
     fontSize: 11,
     paddingHorizontal: 6,
     paddingVertical: 2,
   },
-  sidebarNote: { backgroundColor: '#EFF3E8', borderRadius: 12, padding: 17, gap: 10 },
+  sidebarNote: { backgroundColor: '#252525', borderRadius: 12, padding: 17, gap: 10 },
   noteTitle: { fontSize: 13, fontWeight: '600', color: C.green },
   profile: {
     flexDirection: 'row',
@@ -203,7 +145,7 @@ export const s = StyleSheet.create({
     height: 35,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#E8EDDD',
+    backgroundColor: '#252525',
     borderRadius: 18,
   },
   topbar: {
@@ -213,7 +155,7 @@ export const s = StyleSheet.create({
     alignItems: 'center',
     borderBottomWidth: 1,
     borderColor: C.line,
-    backgroundColor: '#FBFCF7',
+    backgroundColor: '#121212',
   },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   connectionPill: {
@@ -221,93 +163,30 @@ export const s = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
     padding: 7,
-    backgroundColor: '#EFF2E9',
+    backgroundColor: '#252525',
     borderRadius: 7,
   },
   dot: { height: 6, width: 6, borderRadius: 3 },
-  tiny: { fontSize: 10, color: C.green },
+  tiny: { fontSize: 14, color: C.green },
   content: { width: '100%', maxWidth: 1230, alignSelf: 'center', paddingBottom: 90 },
   pageHeader: { flexDirection: 'row', alignItems: 'center', gap: 20, marginBottom: 29 },
-  eyebrow: { fontSize: 9, letterSpacing: 2, fontWeight: '700', color: '#86917D' },
+  eyebrow: { fontSize: 12, letterSpacing: 1, fontWeight: '700', color: '#86917D' },
   title: { fontSize: 34, fontWeight: '600', letterSpacing: -1.3, color: C.ink },
   subtitle: { fontSize: 14, color: C.muted, lineHeight: 22 },
-  small: { fontSize: 12, color: C.muted, lineHeight: 18 },
-  label: { fontSize: 14, color: C.ink, fontWeight: '600' },
+  small: { fontSize: 14, color: C.muted, lineHeight: 18 },
+  label: { fontSize: 16, color: C.ink, fontWeight: '600' },
   button: {
     backgroundColor: C.green,
-    borderRadius: 9,
-    paddingHorizontal: 17,
-    minHeight: 44,
+    borderRadius: 24,
+    paddingHorizontal: 20,
+    minHeight: 48,
     flexDirection: 'row',
     gap: 8,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  buttonText: { color: 'white', fontSize: 13, fontWeight: '600' },
-  secondaryButton: { backgroundColor: '#F6F8F1', borderWidth: 1, borderColor: '#D4DFCC' },
-  hero: {
-    backgroundColor: '#E9EFDF',
-    borderWidth: 1,
-    borderColor: '#E0E7D5',
-    borderRadius: 17,
-    padding: 28,
-    flexDirection: 'row',
-    overflow: 'hidden',
-    gap: 15,
-    marginBottom: 23,
-  },
-  heroTag: { flexDirection: 'row', alignItems: 'center', gap: 7 },
-  heroTagText: { color: C.green, fontSize: 9, letterSpacing: 1.5, fontWeight: '700' },
-  heroTitle: {
-    fontSize: 34,
-    lineHeight: 40,
-    color: '#2E5038',
-    fontWeight: '600',
-    letterSpacing: -0.8,
-  },
-  art: { width: 250, minHeight: 200, alignSelf: 'center' },
-  artCircle: {
-    width: 205,
-    height: 205,
-    borderRadius: 103,
-    backgroundColor: '#DCE6CA',
-    position: 'absolute',
-    left: 22,
-    top: 0,
-  },
-  shelf: {
-    position: 'absolute',
-    width: 240,
-    height: 9,
-    backgroundColor: '#B5BA96',
-    bottom: 14,
-    borderRadius: 5,
-  },
-  jar: {
-    position: 'absolute',
-    borderRadius: 13,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#FFFFFF80',
-  },
-  lid: {
-    position: 'absolute',
-    top: -9,
-    left: -2,
-    right: -2,
-    height: 16,
-    backgroundColor: '#A68C62',
-    borderRadius: 5,
-  },
-  jarSymbol: { fontSize: 28, marginBottom: 8 },
-  jarLabel: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    backgroundColor: '#FCF9EBC9',
-    borderRadius: 3,
-  },
-  jarLabelText: { fontSize: 7, letterSpacing: 1.5, color: '#64734F', fontWeight: '700' },
+  buttonText: { color: '#121212', fontSize: 16, fontWeight: '600' },
+  secondaryButton: { backgroundColor: '#252525', borderWidth: 1, borderColor: '#444444' },
   stats: { flexDirection: 'row', gap: 16, marginBottom: 24 },
   stat: {
     flex: 1,
@@ -345,7 +224,7 @@ export const s = StyleSheet.create({
   },
   sectionTitle: { fontSize: 17, fontWeight: '600', color: C.ink, letterSpacing: -0.3 },
   count: {
-    backgroundColor: '#F0F3EB',
+    backgroundColor: '#252525',
     color: C.green,
     fontSize: 11,
     paddingHorizontal: 8,
@@ -359,17 +238,17 @@ export const s = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderTopWidth: 1,
-    borderColor: '#F0F2ED',
+    borderColor: '#333333',
   },
   expiryTag: {
-    fontSize: 10,
+    fontSize: 14,
     color: C.orange,
     backgroundColor: C.apricot,
     padding: 7,
     borderRadius: 6,
     maxWidth: 110,
   },
-  itemName: { fontSize: 14, fontWeight: '500', color: C.ink },
+  itemName: { fontSize: 16, fontWeight: '500', color: C.ink },
   miniShopping: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -384,7 +263,7 @@ export const s = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 15,
   },
-  link: { color: C.green, fontSize: 12, fontWeight: '600' },
+  link: { color: C.green, fontSize: 16, fontWeight: '600' },
   itemRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -392,7 +271,7 @@ export const s = StyleSheet.create({
     paddingVertical: 15,
     gap: 7,
     borderBottomWidth: 1,
-    borderColor: '#F0F2ED',
+    borderColor: '#333333',
   },
   itemMain: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 13 },
   foodIcon: {
@@ -421,7 +300,7 @@ export const s = StyleSheet.create({
   },
   mobileNav: {
     flexDirection: 'row',
-    backgroundColor: '#FDFEF9',
+    backgroundColor: '#181818',
     borderTopWidth: 1,
     borderColor: C.line,
     paddingHorizontal: 8,
@@ -435,7 +314,7 @@ export const s = StyleSheet.create({
     gap: 5,
     borderRadius: 10,
   },
-  mobileNavText: { fontSize: 10, color: C.muted },
+  mobileNavText: { fontSize: 14, color: C.muted },
   fab: {
     position: 'absolute',
     bottom: 92,
@@ -449,9 +328,9 @@ export const s = StyleSheet.create({
     boxShadow: '0 4px 12px #263A3225',
   },
   input: {
-    backgroundColor: 'white',
+    backgroundColor: C.paper,
     borderWidth: 1,
-    borderColor: '#DAE1D5',
+    borderColor: '#444444',
     borderRadius: 9,
     paddingHorizontal: 14,
     paddingVertical: 12,
@@ -461,9 +340,15 @@ export const s = StyleSheet.create({
   },
   searchInput: { flex: 1, height: 48, color: C.ink, fontSize: 14 },
   chips: { gap: 8, paddingVertical: 20 },
-  chip: { paddingVertical: 10, paddingHorizontal: 15, borderRadius: 8, backgroundColor: '#EBEFE5' },
-  chipActive: { backgroundColor: C.green },
-  chipText: { fontSize: 12, color: C.green },
+  chip: {
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 24,
+    minHeight: 44,
+    backgroundColor: '#252525',
+  },
+  chipActive: { backgroundColor: C.pale, borderWidth: 1, borderColor: C.green },
+  chipText: { fontSize: 14, color: C.green },
   filter: {
     borderBottomWidth: 2,
     borderColor: 'transparent',
@@ -483,13 +368,13 @@ export const s = StyleSheet.create({
     height: 24,
     borderRadius: 7,
     borderWidth: 1,
-    borderColor: '#CBD5C4',
+    borderColor: '#777777',
     alignItems: 'center',
     justifyContent: 'center',
   },
   overlay: {
     flex: 1,
-    backgroundColor: '#172C2766',
+    backgroundColor: '#000000BB',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
@@ -508,13 +393,13 @@ export const s = StyleSheet.create({
     fontSize: 13,
     lineHeight: 20,
     padding: 12,
-    backgroundColor: '#FFF0EC',
+    backgroundColor: '#382025',
     borderRadius: 8,
   },
   notice: {
     flexDirection: 'row',
     gap: 10,
-    backgroundColor: '#E7EEDD',
+    backgroundColor: '#233329',
     borderRadius: 8,
     padding: 13,
     marginBottom: 18,

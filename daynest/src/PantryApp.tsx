@@ -14,18 +14,24 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { addShopping, consume, daysUntil, expiryLabel, iconFor, Item } from './domain';
+import { addShopping, subtractAmount, daysUntil, expiryLabel, iconFor, Item } from './domain';
+import { matchesIngredient } from './catalog';
 import { useDaynest } from './DaynestProvider';
 import { CloudSettings, Confirm } from './CloudSettings';
 import { ItemEditor } from './ItemEditor';
-import { Button, C, Glyph, Icon, s } from './ui';
+import { Button, C, Field, Glyph, Icon, s } from './ui';
 
+const tabLabels = {
+  Overview: 'Today',
+  Inventory: 'Kitchen',
+  Shopping: 'Lists',
+  Settings: 'Settings',
+};
 type Tab = 'Overview' | 'Inventory' | 'Shopping' | 'Settings';
 const navigation: { name: Tab; icon: Icon }[] = [
   { name: 'Overview', icon: 'grid-outline' },
   { name: 'Inventory', icon: 'file-tray-stacked-outline' },
   { name: 'Shopping', icon: 'bag-handle-outline' },
-  { name: 'Settings', icon: 'options-outline' },
 ];
 export default function Pantry({ tab }: { tab: Tab }) {
   const router = useRouter();
@@ -46,7 +52,13 @@ export default function Pantry({ tab }: { tab: Tab }) {
   const filter = params.filter ?? 'All items';
   const setFilter = (value: string) => router.setParams({ filter: value });
   const [editor, setEditor] = useState<Item | 'new' | null>(null);
+  const [purchase, setPurchase] = useState<{ id: string; name: string } | null>(null);
   const [shoppingName, setShoppingName] = useState('');
+  const [using, setUsing] = useState<Item | null>(null);
+  const [amount, setAmount] = useState('');
+  const [useUnit, setUseUnit] = useState('');
+  const [useError, setUseError] = useState('');
+  const [undo, setUndo] = useState<{ item: Item; after: number } | null>(null);
   const [notice, setNotice] = useState('');
   const [confirm, setConfirm] = useState<Confirm | null>(null);
   const pending = state.shopping.filter((i) => !i.checked).length;
@@ -63,7 +75,7 @@ export default function Pantry({ tab }: { tab: Tab }) {
   const low = state.items.filter((i) => i.quantity <= i.lowAt);
   const filtered = state.items.filter(
     (i) =>
-      (!query || i.name.toLowerCase().includes(query.toLowerCase())) &&
+      (!query || matchesIngredient(i.name, query)) &&
       (location === 'All' || i.location === location) &&
       (filter === 'All items' ||
         (filter === 'Use soon' && expiring.some((e) => e.id === i.id)) ||
@@ -83,10 +95,10 @@ export default function Pantry({ tab }: { tab: Tab }) {
   const nav = (mobile = false) =>
     navigation.map((n) => (
       <Pressable
-        key={n.name}
+        key={tabLabels[n.name]}
         accessibilityRole="button"
         accessibilityState={{ selected: tab === n.name }}
-        accessibilityLabel={n.name}
+        accessibilityLabel={tabLabels[n.name]}
         onPress={() => {
           setTab(n.name);
           setNotice('');
@@ -103,7 +115,7 @@ export default function Pantry({ tab }: { tab: Tab }) {
             tab === n.name && { color: C.green, fontWeight: '700' },
           ]}
         >
-          {n.name}
+          {tabLabels[n.name]}
         </Text>
         {!mobile && n.name === 'Shopping' && pending > 0 && <Text style={s.badge}>{pending}</Text>}
       </Pressable>
@@ -120,12 +132,7 @@ export default function Pantry({ tab }: { tab: Tab }) {
           style={[
             s.foodIcon,
             {
-              backgroundColor:
-                item.category === 'Produce'
-                  ? '#EDF1E5'
-                  : item.category === 'Grains'
-                    ? '#F6EEDF'
-                    : '#EEF0F5',
+              backgroundColor: C.pale,
             },
           ]}
         >
@@ -164,13 +171,13 @@ export default function Pantry({ tab }: { tab: Tab }) {
       <Pressable
         disabled={item.quantity === 0}
         accessibilityRole="button"
-        accessibilityLabel={`Use one ${item.unit} of ${item.name}`}
-        onPress={() =>
-          setState((prev) => ({
-            ...prev,
-            items: prev.items.map((i) => (i.id === item.id ? consume(i) : i)),
-          }))
-        }
+        accessibilityLabel={`Record amount used of ${item.name}`}
+        onPress={() => {
+          setUsing(item);
+          setAmount('');
+          setUseUnit(item.unit);
+          setUseError('');
+        }}
         style={[s.iconButton, { opacity: item.quantity === 0 ? 0.3 : 1 }]}
       >
         <Glyph name="remove" size={18} />
@@ -188,7 +195,7 @@ export default function Pantry({ tab }: { tab: Tab }) {
   if (!ready)
     return (
       <SafeAreaView style={[s.app, s.center]}>
-        <StatusBar style="dark" />
+        <StatusBar style="light" />
         {storageError ? (
           <Text style={s.error}>{storageError}</Text>
         ) : (
@@ -201,13 +208,13 @@ export default function Pantry({ tab }: { tab: Tab }) {
     );
   return (
     <SafeAreaView style={s.app}>
-      <StatusBar style="dark" />
+      <StatusBar style="light" />
       <View style={s.layout}>
         {wide && (
           <View style={s.sidebar}>
             <View style={s.brand}>
               <View style={s.brandMark}>
-                <Glyph name="leaf-outline" color="white" size={23} />
+                <Glyph name="leaf-outline" color="#121212" size={23} />
               </View>
               <Text style={s.brandText}>
                 daynest<Text style={{ color: '#85A374' }}>.</Text>
@@ -238,9 +245,7 @@ export default function Pantry({ tab }: { tab: Tab }) {
               <Glyph name={wide ? 'home-outline' : 'leaf-outline'} size={17} color={C.muted} />
               <Text style={s.small}>{wide ? 'My household' : 'Daynest'}</Text>
               <Text style={{ color: '#C0C8BC' }}>/</Text>
-              <Text style={[s.small, { color: C.ink }]}>
-                {tab === 'Overview' ? 'Kitchen' : tab}
-              </Text>
+              <Text style={[s.small, { color: C.ink }]}>{tabLabels[tab]}</Text>
             </View>
             <Pressable
               accessibilityRole="button"
@@ -255,23 +260,23 @@ export default function Pantry({ tab }: { tab: Tab }) {
           <ScrollView contentContainerStyle={[s.content, { padding: compact ? 20 : 36 }]}>
             <View style={s.pageHeader}>
               <View style={{ flex: 1, gap: 8 }}>
-                <Text style={s.eyebrow}>YOUR EVERYDAY, SIMPLIFIED</Text>
+                <Text style={s.eyebrow}>MY KITCHEN</Text>
                 <Text style={[s.title, compact && { fontSize: 31 }]}>
                   {tab === 'Overview'
-                    ? 'A little order. A lot of ease.'
+                    ? 'Today'
                     : tab === 'Inventory'
-                      ? 'Your kitchen, in view.'
+                      ? 'Your kitchen'
                       : tab === 'Shopping'
-                        ? 'A thoughtful little list.'
-                        : 'Make yourself at home.'}
+                        ? 'Shopping list'
+                        : 'Settings'}
                 </Text>
                 <Text style={s.subtitle}>
                   {tab === 'Overview'
-                    ? 'Know what you have. Make the most of it.'
+                    ? 'Your next meal starts with what you have.'
                     : tab === 'Inventory'
                       ? 'Everything on your shelves, all in one place.'
                       : tab === 'Shopping'
-                        ? 'The things you need, ready for your next trip.'
+                        ? 'Weekly vegetables, daily essentials, monthly staples.'
                         : 'Your data, your household, your way.'}
                 </Text>
               </View>
@@ -295,6 +300,30 @@ export default function Pantry({ tab }: { tab: Tab }) {
                 <Text style={{ flex: 1, color: C.green }}>{notice}</Text>
                 <Glyph name="close" size={16} />
               </Pressable>
+            )}
+            {undo && (
+              <Button
+                label="Undo last usage"
+                secondary
+                onPress={() => {
+                  const current = state.items.find((i) => i.id === undo.item.id);
+                  if (!current || current.quantity !== undo.after) {
+                    setNotice('This item changed since usage. Edit its quantity to correct it.');
+                    setUndo(null);
+                    return;
+                  }
+                  setState((prev) => ({
+                    ...prev,
+                    items: prev.items.map((i) =>
+                      i.id === undo.item.id && i.quantity === undo.after
+                        ? { ...i, quantity: undo.item.quantity }
+                        : i,
+                    ),
+                  }));
+                  setUndo(null);
+                  setNotice('Usage undone.');
+                }}
+              />
             )}
             {tab === 'Overview' && (
               <OverviewScreen
@@ -334,6 +363,7 @@ export default function Pantry({ tab }: { tab: Tab }) {
                 addToList={addToList}
                 pending={pending}
                 low={low}
+                onPurchase={setPurchase}
               />
             )}
             {tab === 'Settings' && (
@@ -357,12 +387,31 @@ export default function Pantry({ tab }: { tab: Tab }) {
               onPress={() => setEditor('new')}
               style={s.fab}
             >
-              <Glyph name="add" color="white" size={28} />
+              <Glyph name="add" color="#121212" size={28} />
             </Pressable>
           )}
           {!wide && <View style={s.mobileNav}>{nav(true)}</View>}
         </View>
       </View>
+      {purchase && (
+        <ItemEditor
+          initialName={purchase.name}
+          item={null}
+          onClose={() => setPurchase(null)}
+          onDelete={() => {}}
+          onSave={(item) => {
+            setState((prev) => ({
+              ...prev,
+              items: [...prev.items, item],
+              shopping: prev.shopping.filter((line) => line.id !== purchase.id),
+            }));
+            setNotice(
+              `${item.name} added as a separate purchase. Earlier stock keeps its own date.`,
+            );
+            setPurchase(null);
+          }}
+        />
+      )}
       {editor !== null && (
         <ItemEditor
           item={editor === 'new' ? null : editor}
@@ -391,6 +440,59 @@ export default function Pantry({ tab }: { tab: Tab }) {
             });
           }}
         />
+      )}
+      {using && (
+        <Modal visible transparent animationType="fade" onRequestClose={() => setUsing(null)}>
+          <View style={s.overlay}>
+            <View style={[s.dialog, { padding: 24, gap: 18 }]}>
+              <Text style={s.sectionTitle}>Used some {using.name}?</Text>
+              <Text style={s.small}>
+                {using.quantity} {using.unit} available. Enter the amount you used.
+              </Text>
+              <Field label="Amount used" value={amount} onChangeText={setAmount} numeric />
+              <View style={[s.row, { flexWrap: 'wrap' }]}>
+                {(['g', 'kg'].includes(using.unit)
+                  ? ['g', 'kg']
+                  : ['ml', 'l'].includes(using.unit)
+                    ? ['ml', 'l']
+                    : [using.unit]
+                ).map((u) => (
+                  <Button
+                    key={u}
+                    label={u === useUnit ? `${u} ✓` : u}
+                    secondary
+                    onPress={() => setUseUnit(u)}
+                  />
+                ))}
+              </View>
+              {useError !== '' && (
+                <Text accessibilityRole="alert" style={s.error}>
+                  {useError}
+                </Text>
+              )}
+              <Button
+                label="Record usage"
+                onPress={() => {
+                  try {
+                    const current = state.items.find((i) => i.id === using.id);
+                    if (!current) throw new Error('This item was removed.');
+                    const next = subtractAmount(current, Number(amount), useUnit);
+                    setState((prev) => ({
+                      ...prev,
+                      items: prev.items.map((i) => (i.id === current.id ? next : i)),
+                    }));
+                    setUndo({ item: current, after: next.quantity });
+                    setNotice(`Used ${amount} ${useUnit} of ${current.name}.`);
+                    setUsing(null);
+                  } catch (error) {
+                    setUseError(error instanceof Error ? error.message : 'Could not record usage.');
+                  }
+                }}
+              />
+              <Button label="Cancel" secondary onPress={() => setUsing(null)} />
+            </View>
+          </View>
+        </Modal>
       )}
       <Modal
         visible={confirm !== null}

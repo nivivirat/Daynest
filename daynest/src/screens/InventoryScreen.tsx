@@ -31,7 +31,7 @@ export function InventoryScreen({
         <Glyph name="search-outline" color={C.muted} />
         <TextInput
           accessibilityLabel="Search inventory"
-          placeholder="Find something in your kitchen…"
+          placeholder="Search atta, dal, jeera…"
           value={query}
           onChangeText={setQuery}
           style={s.searchInput}
@@ -48,7 +48,7 @@ export function InventoryScreen({
             style={[s.chip, location === l && s.chipActive]}
           >
             <Text style={[s.chipText, location === l && { color: 'white' }]}>
-              {l === 'All' ? 'All locations' : l}
+              {l === 'All' ? 'All locations' : l === 'Pantry' ? 'Dry storage' : l}
             </Text>
           </Pressable>
         ))}
@@ -74,7 +74,7 @@ export function InventoryScreen({
         ))}
       </View>
       <Text style={[s.small, { marginBottom: 12 }]}>
-        {filtered.length} items · Tap an item to edit · Minus uses one unit
+        {filtered.length} items · Tap an item to edit · Minus records the amount used
       </Text>
       <View style={s.card}>
         {filtered.length ? (

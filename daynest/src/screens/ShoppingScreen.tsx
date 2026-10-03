@@ -11,6 +11,7 @@ type Props = {
   addToList: (v: string) => void;
   pending: number;
   low: Item[];
+  onPurchase: (item: { id: string; name: string }) => void;
 };
 export function ShoppingScreen({
   state,
@@ -20,13 +21,15 @@ export function ShoppingScreen({
   addToList,
   pending,
   low,
+  onPurchase,
 }: Props) {
   return (
     <>
       <View style={[s.row, { marginBottom: 22 }]}>
         <TextInput
           accessibilityLabel="Shopping item"
-          placeholder="What do you need?"
+          placeholder="e.g. Dal, vegetables, milk"
+          placeholderTextColor={C.muted}
           value={shoppingName}
           onChangeText={setShoppingName}
           onSubmitEditing={() => {
@@ -46,13 +49,17 @@ export function ShoppingScreen({
           }}
         />
       </View>
+      <Text style={[s.small, { marginBottom: 16 }]}>
+        Check what you bought, then tap Add to kitchen to confirm quantity and package date. Each
+        purchase stays separate.
+      </Text>
       <View style={s.card}>
         <View style={s.sectionHeader}>
           <Text style={s.sectionTitle}>Your shopping list</Text>
           <Text style={s.count}>{pending} left</Text>
         </View>
         {state.shopping.map((item) => (
-          <View style={s.shoppingRow} key={item.id}>
+          <View style={[s.shoppingRow, { flexWrap: 'wrap', gap: 8 }]} key={item.id}>
             <Pressable
               accessibilityRole="checkbox"
               accessibilityState={{ checked: item.checked }}
@@ -73,7 +80,7 @@ export function ShoppingScreen({
                   item.checked && { backgroundColor: C.green, borderColor: C.green },
                 ]}
               >
-                {item.checked && <Glyph name="checkmark" size={16} color="white" />}
+                {item.checked && <Glyph name="checkmark" size={16} color="#121212" />}
               </View>
               <Text
                 style={[
@@ -84,6 +91,9 @@ export function ShoppingScreen({
                 {item.name}
               </Text>
             </Pressable>
+            {item.checked && (
+              <Button label="Add to kitchen" secondary onPress={() => onPurchase(item)} />
+            )}
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={`Remove ${item.name} from shopping list`}

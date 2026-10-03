@@ -2,7 +2,7 @@ import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import type { Item, PantryState } from '../domain';
 import { expiryLabel, iconFor, sampleState } from '../domain';
-import { Button, C, Glyph, Icon, JarArt, s } from '../ui';
+import { Button, C, Glyph, Icon, s } from '../ui';
 type Props = {
   state: PantryState;
   compact: boolean;
@@ -33,29 +33,6 @@ export function OverviewScreen({
 }: Props) {
   return (
     <>
-      <View style={s.hero}>
-        <View style={{ flex: 1, gap: 12, paddingVertical: 8 }}>
-          <View style={s.heroTag}>
-            <Glyph name="sunny-outline" size={15} color={C.green} />
-            <Text style={s.heroTagText}>A FRESH START</Text>
-          </View>
-          <Text style={[s.heroTitle, compact && { fontSize: 27 }]}>
-            A happier kitchen{'\n'}starts here.
-          </Text>
-          <Text style={[s.subtitle, { maxWidth: 350, lineHeight: 22 }]}>
-            Keep the good stuff fresh and the essentials stocked. We’ll help you keep track.
-          </Text>
-          <View style={{ alignSelf: 'flex-start', marginTop: 5 }}>
-            <Button
-              label="Explore your inventory"
-              secondary
-              icon="arrow-forward"
-              onPress={() => openFilter('All items')}
-            />
-          </View>
-        </View>
-        {!compact && <JarArt />}
-      </View>
       <View style={[s.stats, compact && { gap: 8 }]}>
         {[
           {
@@ -81,8 +58,8 @@ export function OverviewScreen({
             title: 'Running low',
             sub: 'ready for a top-up',
             icon: 'basket-outline' as Icon,
-            color: '#6C6A90',
-            bg: '#EEEDF6',
+            color: C.green,
+            bg: C.pale,
             filter: 'Low stock',
           },
         ].map((stat) => (
@@ -110,7 +87,7 @@ export function OverviewScreen({
           <View style={s.sectionHeader}>
             <View style={s.row}>
               <Glyph name="time-outline" color={C.orange} />
-              <Text style={s.sectionTitle}>A little attention</Text>
+              <Text style={s.sectionTitle}>Check these dates</Text>
             </View>
             <Text style={s.count}>{expiring.length + expired.length}</Text>
           </View>
@@ -187,7 +164,7 @@ export function OverviewScreen({
           <View style={[s.row, { flexWrap: 'wrap', justifyContent: 'center' }]}>
             <Button label="Add your first item" icon="add" onPress={() => setEditor('new')} />
             <Button
-              label="Try sample pantry"
+              label="Try Indian kitchen demo"
               secondary
               onPress={() => {
                 setState((previous) => {
